@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pasaporte Zaragoza 2026 · Ministerio del Buen Vivir</title>
+  <meta name="description" content="Pasaporte Zaragoza 2026: Ruta por el Tubo y Ruta Cultural. Sede electrónica del Ministerio del Buen Vivir.">
+  <meta name="theme-color" content="#f7c701">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Pasaporte ZGZ">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-tubo" viewBox="0 0 24 24"><path d="M4 4h16l-8 9z M12 13v7 M8 20h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cultura" viewBox="0 0 24 24"><path d="M3 21h18 M5 21V11 M9.7 21V11 M14.3 21V11 M19 21V11 M2.5 10.5 12 3l9.5 7.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-equipo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.8M18 14.3c2 .7 3 2.6 3 5.7"/></g></symbol>
+    <symbol id="i-ayuda" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l5 5L19.5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-ruta" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-gps" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></g></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></g></symbol>
+    <symbol id="i-diploma" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></g></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></g></symbol>
+  </svg>
+
+  <header class="gov">
+    <a class="gov__logo" href="./" aria-label="Gobierno de España · Ministerio del Buen Vivir">
+      <img src="img/logo-ministerio.jpg" alt="Gobierno de España. Ministerio del Buen Vivir" width="512" height="162">
+    </a>
+    <div class="gov__side">
+      <span class="gov__sede">Sede electrónica</span>
+      <button id="btn-ayuda" class="gov__ayuda" type="button" aria-label="Ayuda"><svg class="i"><use href="#i-ayuda"/></svg></button>
+      <button id="btn-instalar" class="btn btn--mini" type="button" hidden>Instalar app</button>
+    </div>
+  </header>
+
+  <section class="hero" aria-label="Pasaporte Zaragoza 2026">
+    <h1 class="hero__titulo">PASAPORTE ZARAGOZA <span class="hero__anio">2026</span></h1>
+  </section>
+
+  <nav class="tabs" id="tabs" aria-label="Secciones">
+    <button type="button" data-tab="tubo"><svg class="i"><use href="#i-tubo"/></svg><span>Ruta por el Tubo</span></button>
+    <button type="button" data-tab="cultural"><svg class="i"><use href="#i-cultura"/></svg><span>Ruta Cultural</span></button>
+    <button type="button" data-tab="equipo"><svg class="i"><use href="#i-equipo"/></svg><span>Conócenos</span></button>
+    <button type="button" data-tab="ayuda"><svg class="i"><use href="#i-ayuda"/></svg><span>Cómo funciona</span></button>
+  </nav>
+
+  <main class="main" id="main">
+    <section class="route" id="panel-ruta" hidden>
+      <div class="route__list" id="lista-wrap">
+        <div class="progreso">
+          <div class="progreso__top">
+            <strong class="progreso__titulo" id="progreso-titulo"></strong>
+            <span class="progreso__cuenta" id="progreso-cuenta"></span>
+          </div>
+          <div class="progreso__barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="progreso-barra"><span></span></div>
+          <div class="progreso__acciones">
+            <button type="button" class="btn btn--azul" id="btn-diploma"><svg class="i"><use href="#i-diploma"/></svg>Diploma</button>
+            <button type="button" class="btn btn--azul" id="btn-compartir"><svg class="i"><use href="#i-share"/></svg>Compartir</button>
+          </div>
+        </div>
+        <ol class="hitos" id="hitos"></ol>
+      </div>
+      <div class="route__map" id="mapa-wrap">
+        <div id="mapa" aria-label="Mapa de la ruta"></div>
+        <button type="button" class="loc-btn" id="btn-loc" aria-pressed="false" aria-label="Mostrar mi ubicación"><svg class="i"><use href="#i-gps"/></svg></button>
+      </div>
+    </section>
+
+    <section class="equipo" id="panel-equipo" hidden>
+      <div class="equipo__in">
+        <h2 class="equipo__h">Conócenos</h2>
+        <p class="equipo__sub">Gabinete del Ministerio del Buen Vivir</p>
+        <blockquote class="lema">«<span id="lema"></span>»</blockquote>
+        <div class="equipo__grid" id="equipo-grid"></div>
+
+        <details class="info">
+          <summary>Créditos de las fotografías</summary>
+          <ul id="creditos"></ul>
+          <p>Mapa: © colaboradores de OpenStreetMap.</p>
+        </details>
+        <p class="legal">Este sitio no es oficial ni tiene validez administrativa alguna, pero se toma muy en serio el buen vivir.<br>Los sellos se guardan sólo en este dispositivo.</p>
+      </div>
+    </section>
+    <section class="equipo" id="panel-ayuda" hidden>
+      <div class="equipo__in">
+        <h2 class="equipo__h">Cómo funciona</h2>
+        <p class="equipo__sub">Guía de trámites para la obtención del Pasaporte Zaragoza 2026</p>
+        <ol class="pasos">
+          <li><h3>Elija su itinerario</h3><p>Seleccione la Ruta por el Tubo o la Ruta Cultural en la barra de secciones. Puede tramitar ambas, en cualquier orden y sin cita previa.</p></li>
+          <li><h3>Localice el hito</h3><p>Toque un hito en la lista o en el mapa. En los bares se detallan la dirección y la tapa clásica; en los monumentos, su fotografía. El botón «Cómo llegar» abre su aplicación de mapas.</p></li>
+          <li><h3>Estampe el sello</h3><p>Al visitar un hito, pulse SELLAR. El sello queda registrado en la lista y el marcador del mapa pasa a verde.</p></li>
+          <li><h3>Rectificación de errores</h3><p>¿Sellado por error? Vuelva a pulsar el sello y quedará retirado. No se exigen tasas ni formularios.</p></li>
+          <li><h3>Localización</h3><p>El botón de la diana, en el mapa, muestra su posición. Se solicitará su permiso expreso y podrá desactivarla cuando lo desee.</p></li>
+          <li><h3>Diploma y difusión</h3><p>Al completar una ruta se expide el diploma, a su nombre. El botón «Compartir» genera una imagen con todos sus sellos para su divulgación por los canales oportunos.</p></li>
+          <li><h3>Conservación de datos</h3><p>Sus sellos se guardan únicamente en este dispositivo. Si borra los datos del navegador o desinstala la aplicación, el Ministerio no podrá recuperarlos.</p></li>
+          <li><h3>Instalación en su móvil</h3><p><strong>Android (Chrome):</strong> menú ⋮ → «Instalar aplicación».<br><strong>iPhone (Safari):</strong> botón Compartir → «Añadir a pantalla de inicio».</p></li>
+        </ol>
+        <p class="legal">El Ministerio del Buen Vivir agradece su colaboración y le desea una jornada provechosa.</p>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="dlg-bienvenida" class="dlg">
+    <form method="dialog" class="dlg__in">
+      <h2>Bienvenido a la sede electrónica del Ministerio del Buen Vivir</h2>
+      <p class="bv__txt">Para obtener su Pasaporte Zaragoza 2026, siga los tres trámites siguientes:</p>
+      <ol class="bv__lista">
+        <li><strong>Elija una ruta:</strong> el Tubo o la Cultural.</li>
+        <li><strong>Visite los hitos</strong> y pulse SELLAR en cada uno.</li>
+        <li><strong>Complete la ruta</strong> y retire su diploma.</li>
+      </ol>
+      <div class="dlg__acciones">
+        <button class="btn btn--azul" value="ok">Entendido</button>
+        <button type="button" class="btn btn--sec" id="bv-guia">Ver guía completa</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg" class="dlg">
+    <form method="dialog" class="dlg__in">
+      <h2 id="dlg-titulo"></h2>
+      <label class="dlg__nombre" id="dlg-nombre-wrap">Tu nombre
+        <input id="dlg-nombre" type="text" maxlength="40" autocomplete="name" placeholder="Nombre y apellidos">
+      </label>
+      <canvas id="dlg-canvas" class="dlg__canvas"></canvas>
+      <div class="dlg__acciones">
+        <button type="button" class="btn btn--azul" id="dlg-compartir"><svg class="i"><use href="#i-share"/></svg>Compartir</button>
+        <button type="button" class="btn btn--azul" id="dlg-descargar"><svg class="i"><use href="#i-download"/></svg>Descargar</button>
+        <button class="btn btn--sec" value="cerrar">Cerrar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="vendor/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
