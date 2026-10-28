@@ -75,24 +75,41 @@
   }
 
   // ---------- Lista ----------
+  const fotoMem = {};
+  const clave = (ruta, id) => `${ruta}:${id}`;
+  const fechaFoto = (t) => new Date(t).toLocaleString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+
   function htmlItem(h) {
     const r = rutaActual();
     const sel = selId === h.id;
     const esTubo = r.id === 'tubo';
     const ok = visitado(h.id);
-    const thumb = esTubo ? '' : `<img class="thumb" src="${h.foto}" alt="" loading="lazy">`;
+    const f = fotoMem[clave(r.id, h.id)];
+    const thumb = esTubo
+      ? (f ? `<img class="thumb" src="${f.url}" alt="">` : '')
+      : `<img class="thumb" src="${h.foto}" alt="" loading="lazy">`;
     const detalle = esTubo
       ? `<p class="hito__dir">${h.dir}</p><p class="hito__tapa"><b>Tapa clásica:</b> ${h.tapa}</p>`
       : '';
+    const chip = f ? '<span class="hito__prueba"><svg class="i"><use href="#i-foto"/></svg>Con foto</span>' : '';
     let det = '';
     if (sel) {
       const foto = esTubo ? '' : `<img class="hito__foto" src="${h.foto}" alt="${h.nombre}">
         <div class="hito__cred">Foto: ${h.credito.autor} · <a href="${h.credito.url}" target="_blank" rel="noopener">${h.credito.licencia}</a> · Wikimedia Commons</div>`;
-      det = `<div class="hito__det">${foto}<a class="btn hito__ir" href="${urlIr(h)}" target="_blank" rel="noopener"><svg class="i"><use href="#i-ruta"/></svg>Cómo llegar</a></div>`;
+      const prueba = `<div class="prueba">
+          <div class="prueba__t">Prueba de vida</div>
+          ${f ? `<img class="prueba__img" src="${f.url}" alt="Tu foto en ${h.nombre}"><div class="hito__cred">Hecha el ${fechaFoto(f.fecha)}</div>` : ''}
+          <div class="prueba__btns">
+            <button type="button" class="btn btn--azul prueba-btn" data-acc="camara"><svg class="i"><use href="#i-foto"/></svg>${f ? 'Repetir foto' : 'Hacer foto'}</button>
+            <button type="button" class="btn btn--sec prueba-btn" data-acc="galeria">Galería</button>
+            ${f ? '<button type="button" class="btn btn--borrar prueba-btn" data-acc="borrar">Eliminar foto</button>' : ''}
+          </div>
+        </div>`;
+      det = `<div class="hito__det">${foto}${prueba}<a class="btn hito__ir" href="${urlIr(h)}" target="_blank" rel="noopener"><svg class="i"><use href="#i-ruta"/></svg>Cómo llegar</a></div>`;
     }
     return `<div class="hito__fila">
         <span class="num">${h.id}</span>${thumb}
-        <div class="hito__txt"><h3 class="hito__nombre">${h.nombre}</h3>${detalle}</div>
+        <div class="hito__txt"><h3 class="hito__nombre">${h.nombre}</h3>${detalle}${chip}</div>
         <button type="button" class="sello" aria-pressed="${ok}" aria-label="${ok ? 'Quitar sello de' : 'Sellar'} ${h.nombre}">
           <svg class="i"><use href="#i-check"/></svg><span>${ok ? 'SELLADO' : 'SELLAR'}</span>
         </button>
@@ -173,9 +190,66 @@
     const li = e.target.closest('.hito');
     if (!li) return;
     const id = Number(li.dataset.id);
+    const pb = e.target.closest('.prueba-btn');
+    if (pb) { accionFoto(id, pb.dataset.acc); return; }
+    if (e.target.closest('.hito__det')) return;
     if (e.target.closest('.sello')) { alternarSello(id); return; }
     seleccionar(id, 'lista');
   });
+
+  // ---------- Fotos (prueba de vida) ----------
+  let pendiente = null;
+  const cargadas = new Set();
+
+  async function cargarFotos(ruta) {
+    if (cargadas.has(ruta)) return;
+    try {
+      const o = await ZGZ.fotos.deRuta(ruta);
+      cargadas.add(ruta);
+      Object.keys(o).forEach((id) => {
+        fotoMem[clave(ruta, id)] = { url: URL.createObjectURL(o[id].blob), fecha: o[id].fecha };
+        if (rutaId === ruta) pintarItem(Number(id));
+      });
+    } catch (err) { /* IndexedDB no disponible: la app sigue sin fotos */ }
+  }
+
+  async function accionFoto(id, acc) {
+    const k = clave(rutaId, id);
+    if (acc === 'borrar') {
+      if (!confirm('¿Eliminar esta foto? No se puede recuperar.')) return;
+      try { await ZGZ.fotos.borrar(k); } catch (err) { toast('No se pudo eliminar la foto'); return; }
+      if (fotoMem[k]) URL.revokeObjectURL(fotoMem[k].url);
+      delete fotoMem[k];
+      pintarItem(id);
+      toast('Foto eliminada');
+      return;
+    }
+    pendiente = { ruta: rutaId, id };
+    const inp = $(acc === 'camara' ? '#in-camara' : '#in-galeria');
+    inp.value = '';
+    inp.click();
+  }
+
+  async function alElegirFoto(e) {
+    const file = e.target.files[0];
+    if (!file || !pendiente) return;
+    const { ruta, id } = pendiente;
+    const k = clave(ruta, id);
+    try {
+      const blob = await ZGZ.fotos.reducir(file);
+      const fecha = Date.now();
+      await ZGZ.fotos.guardar(k, { blob, fecha });
+      if (fotoMem[k]) URL.revokeObjectURL(fotoMem[k].url);
+      fotoMem[k] = { url: URL.createObjectURL(blob), fecha };
+      if (rutaId === ruta) pintarItem(id);
+      toast('Prueba de vida guardada');
+    } catch (err) {
+      toast('No se pudo guardar la foto en este dispositivo');
+    }
+  }
+  $('#in-camara').addEventListener('change', alElegirFoto);
+  $('#in-galeria').addEventListener('change', alElegirFoto);
+  $('#btn-collage').addEventListener('click', () => ZGZ.abrirCollage(rutaActual()));
 
   $('#btn-diploma').addEventListener('click', () => {
     if (completa()) { ZGZ.abrirDiploma(rutaActual()); return; }
@@ -203,6 +277,7 @@
     pintarProgreso();
     dibujarMarcadores();
     encuadrar();
+    cargarFotos(tab);
   }
   $('#tabs').addEventListener('click', (e) => {
     const b = e.target.closest('button[data-tab]');

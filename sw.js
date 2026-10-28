@@ -1,11 +1,11 @@
-const VERSION = 'v3';
+const VERSION = 'v4';
 const APP = `pasaporte-zgz-app-${VERSION}`;
 const TILES = 'pasaporte-zgz-tiles';
 const MAX_TILES = 500;
 
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest',
-  'css/styles.css', 'js/data.js', 'js/share.js', 'js/app.js',
+  'css/styles.css', 'js/data.js', 'js/fotos.js', 'js/share.js', 'js/app.js',
   'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/montserrat.woff2',
   'img/logo-ministerio.jpg',
   'img/equipo/rafael.jpg', 'img/equipo/leonardo.jpg', 'img/equipo/ramon.jpg', 'img/equipo/alfonso.jpg',

@@ -17,7 +17,7 @@
 
   async function dibujar() {
     await Promise.all([logoListo, document.fonts.load('800 40px Montserrat'), document.fonts.load('700 40px Montserrat')]);
-    actual.dibujar(inputNombre.value.trim());
+    await actual.dibujar(inputNombre.value.trim());
   }
 
   function abrir(cfg) {
@@ -254,11 +254,116 @@
     ctx.fillText('Ministerio del Buen Vivir · Sede no oficial', W / 2, 1300);
   }
 
+  // ---------- Collage de pruebas de vida ----------
+  function rectRedondo(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  async function collage(ruta) {
+    let fotos = {};
+    try { fotos = await ZGZ.fotos.deRuta(ruta.id); } catch (e) { /* sin fotos */ }
+    const imgs = {};
+    await Promise.all(Object.keys(fotos).map(async (id) => { imgs[id] = await createImageBitmap(fotos[id].blob); }));
+
+    const W = 1080, COLS = 4, GAP = 12, CELDA = 232;
+    const filas = Math.ceil(ruta.hitos.length / COLS);
+    const gridW = COLS * CELDA + (COLS - 1) * GAP;
+    const gridX = (W - gridW) / 2;
+    const gridY = 400;
+    const H = gridY + filas * CELDA + (filas - 1) * GAP + 250;
+    const ctx = preparar(W, H);
+
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#101354'); g.addColorStop(1, '#0c2a74');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    cabecera(ctx, 0, 0, W, 170, false);
+
+    ctx.fillStyle = TURQ;
+    ctx.font = `800 40px ${FUENTE}`;
+    ctx.fillText('PASAPORTE ZARAGOZA 2026', W / 2, 245);
+    ctx.fillStyle = '#fff';
+    ctx.font = `800 64px ${FUENTE}`;
+    ctx.fillText(ruta.titulo, W / 2, 318);
+    const nombre = ZGZ.estado.nombre || inputNombre.value.trim();
+    ctx.fillStyle = 'rgba(255,255,255,.8)';
+    ctx.font = `700 30px ${FUENTE}`;
+    ctx.fillText(nombre ? `Pruebas de vida de ${nombre}` : 'Pruebas de vida', W / 2, 365);
+
+    const hechos = ZGZ.estado[ruta.id];
+    ruta.hitos.forEach((h, i) => {
+      const x = gridX + (i % COLS) * (CELDA + GAP);
+      const y = gridY + Math.floor(i / COLS) * (CELDA + GAP);
+      const ok = hechos.includes(h.id);
+      const img = imgs[h.id];
+
+      ctx.save();
+      rectRedondo(ctx, x, y, CELDA, CELDA, 18);
+      ctx.clip();
+      if (img) {
+        const k = Math.max(CELDA / img.width, CELDA / img.height);
+        const w = img.width * k, hh = img.height * k;
+        ctx.drawImage(img, x + (CELDA - w) / 2, y + (CELDA - hh) / 2, w, hh);
+        const f = ctx.createLinearGradient(0, y + CELDA - 70, 0, y + CELDA);
+        f.addColorStop(0, 'rgba(10,12,50,0)'); f.addColorStop(1, 'rgba(10,12,50,.85)');
+        ctx.fillStyle = f; ctx.fillRect(x, y + CELDA - 70, CELDA, 70);
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,.07)'; ctx.fillRect(x, y, CELDA, CELDA);
+        ctx.fillStyle = 'rgba(255,255,255,.45)';
+        ctx.font = `800 80px ${FUENTE}`;
+        ctx.fillText(String(h.id), x + CELDA / 2, y + CELDA / 2 + 14);
+        ctx.font = `700 18px ${FUENTE}`;
+        ctx.fillText('Pendiente de justificar', x + CELDA / 2, y + CELDA / 2 + 52);
+      }
+      ctx.restore();
+
+      rectRedondo(ctx, x, y, CELDA, CELDA, 18);
+      if (img) { ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.setLineDash([]); } else { ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.setLineDash([9, 8]); }
+      ctx.stroke(); ctx.setLineDash([]);
+
+      ctx.fillStyle = '#fff';
+      const s = tamanoQueCabe(ctx, h.nombre.toUpperCase(), CELDA - 20, 20, 800);
+      ctx.font = `800 ${s}px ${FUENTE}`;
+      ctx.fillText(h.nombre.toUpperCase(), x + CELDA / 2, y + CELDA - 12);
+
+      ctx.beginPath(); ctx.arc(x + 26, y + 26, 20, 0, Math.PI * 2);
+      ctx.fillStyle = ok ? VERDE : NAVY; ctx.fill();
+      ctx.lineWidth = 3; ctx.strokeStyle = '#fff'; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = `800 22px ${FUENTE}`;
+      ctx.fillText(String(h.id), x + 26, y + 34);
+      if (ok) marcaCheck(ctx, x + CELDA - 24, y + 24, 16);
+    });
+
+    const nFotos = Object.keys(imgs).length;
+    const yPie = gridY + filas * CELDA + (filas - 1) * GAP + 80;
+    ctx.fillStyle = TURQ;
+    ctx.font = `800 34px ${FUENTE}`;
+    ctx.fillText(`${nFotos} de ${ruta.hitos.length} pruebas de vida · ${hechos.length} ${hechos.length === 1 ? 'sello' : 'sellos'}`, W / 2, yPie);
+    ctx.fillStyle = 'rgba(255,255,255,.8)';
+    ctx.font = `italic 600 26px ${FUENTE}`;
+    parrafo(ctx, '«' + LEMA + '»', W / 2, yPie + 60, 860, 36);
+    ctx.fillStyle = 'rgba(255,255,255,.5)';
+    ctx.font = `700 22px ${FUENTE}`;
+    ctx.fillText('Ministerio del Buen Vivir · Sede no oficial', W / 2, H - 28);
+  }
+
   ZGZ.abrirDiploma = (ruta) => abrir({
     titulo: `Diploma · ${ruta.titulo}`,
     texto: `¡He completado la ${ruta.titulo} del Pasaporte Zaragoza 2026!`,
     archivo: `diploma-${ruta.id}-zaragoza-2026.png`,
     dibujar: () => diploma(ruta)
+  });
+
+  ZGZ.abrirCollage = (ruta) => abrir({
+    titulo: `Collage · ${ruta.titulo}`,
+    texto: `Mis pruebas de vida en la ${ruta.titulo} del Pasaporte Zaragoza 2026`,
+    archivo: `collage-${ruta.id}-zaragoza-2026.png`,
+    dibujar: () => collage(ruta)
   });
 
   ZGZ.abrirPasaporte = () => abrir({

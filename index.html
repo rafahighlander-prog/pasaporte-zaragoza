@@ -22,6 +22,7 @@
     <symbol id="i-cultura" viewBox="0 0 24 24"><path d="M3 21h18 M5 21V11 M9.7 21V11 M14.3 21V11 M19 21V11 M2.5 10.5 12 3l9.5 7.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-equipo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.8M18 14.3c2 .7 3 2.6 3 5.7"/></g></symbol>
     <symbol id="i-ayuda" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></g></symbol>
+    <symbol id="i-foto" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v11H3z"/><circle cx="12" cy="13" r="3.5"/></g></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l5 5L19.5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-ruta" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
     <symbol id="i-gps" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></g></symbol>
@@ -64,6 +65,7 @@
           <div class="progreso__acciones">
             <button type="button" class="btn btn--azul" id="btn-diploma"><svg class="i"><use href="#i-diploma"/></svg>Diploma</button>
             <button type="button" class="btn btn--azul" id="btn-compartir"><svg class="i"><use href="#i-share"/></svg>Compartir</button>
+            <button type="button" class="btn btn--azul" id="btn-collage"><svg class="i"><use href="#i-foto"/></svg>Collage</button>
           </div>
         </div>
         <ol class="hitos" id="hitos"></ol>
@@ -86,7 +88,7 @@
           <ul id="creditos"></ul>
           <p>Mapa: © colaboradores de OpenStreetMap.</p>
         </details>
-        <p class="legal">Este sitio no es oficial ni tiene validez administrativa alguna, pero se toma muy en serio el buen vivir.<br>Los sellos se guardan sólo en este dispositivo.</p>
+        <p class="legal">Este sitio no es oficial ni tiene validez administrativa alguna, pero se toma muy en serio el buen vivir.<br>Los sellos y las fotos se guardan sólo en este dispositivo.</p>
       </div>
     </section>
     <section class="equipo" id="panel-ayuda" hidden>
@@ -98,9 +100,10 @@
           <li><h3>Localice el hito</h3><p>Toque un hito en la lista o en el mapa. En los bares se detallan la dirección y la tapa clásica; en los monumentos, su fotografía. El botón «Cómo llegar» abre su aplicación de mapas.</p></li>
           <li><h3>Estampe el sello</h3><p>Al visitar un hito, pulse SELLAR. El sello queda registrado en la lista y el marcador del mapa pasa a verde.</p></li>
           <li><h3>Rectificación de errores</h3><p>¿Sellado por error? Vuelva a pulsar el sello y quedará retirado. No se exigen tasas ni formularios.</p></li>
+          <li><h3>Prueba de vida (opcional)</h3><p>Al seleccionar un hito puede adjuntar una fotografía que acredite su presencia: haga una foto en el acto o elija una de su galería. Puede eliminarla cuando quiera; el sello no se ve afectado.</p></li>
           <li><h3>Localización</h3><p>El botón de la diana, en el mapa, muestra su posición. Se solicitará su permiso expreso y podrá desactivarla cuando lo desee.</p></li>
-          <li><h3>Diploma y difusión</h3><p>Al completar una ruta se expide el diploma, a su nombre. El botón «Compartir» genera una imagen con todos sus sellos para su divulgación por los canales oportunos.</p></li>
-          <li><h3>Conservación de datos</h3><p>Sus sellos se guardan únicamente en este dispositivo. Si borra los datos del navegador o desinstala la aplicación, el Ministerio no podrá recuperarlos.</p></li>
+          <li><h3>Diploma y difusión</h3><p>Al completar una ruta se expide el diploma, a su nombre. El botón «Compartir» genera una imagen con todos sus sellos y el botón «Collage», un mosaico con sus pruebas de vida, para su divulgación por los canales oportunos.</p></li>
+          <li><h3>Conservación de datos</h3><p>Sus sellos y fotografías se guardan únicamente en este dispositivo. Si borra los datos del navegador o desinstala la aplicación, el Ministerio no podrá recuperarlos.</p></li>
           <li><h3>Instalación en su móvil</h3><p><strong>Android (Chrome):</strong> menú ⋮ → «Instalar aplicación».<br><strong>iPhone (Safari):</strong> botón Compartir → «Añadir a pantalla de inicio».</p></li>
         </ol>
         <p class="legal">El Ministerio del Buen Vivir agradece su colaboración y le desea una jornada provechosa.</p>
@@ -140,9 +143,12 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="in-camara" accept="image/*" capture="user" hidden>
+  <input type="file" id="in-galeria" accept="image/*" hidden>
 
   <script src="vendor/leaflet.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/fotos.js"></script>
   <script src="js/share.js"></script>
   <script src="js/app.js"></script>
 </body>
